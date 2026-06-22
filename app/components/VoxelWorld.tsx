@@ -1,10 +1,11 @@
 "use client";
 import { useMemo, useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Sky, Environment } from "@react-three/drei";
+import { OrbitControls, Sky } from "@react-three/drei";
 import * as THREE from "three";
 import { useWorldStore } from "@/lib/worldStore";
 import { BlockType, BLOCK_COLORS, parseKey } from "@/lib/worldTypes";
+import AgentMeshes from "./AgentMeshes";
 
 // Block types we actually render (skip air)
 const RENDERABLE: BlockType[] = [
@@ -130,6 +131,7 @@ export default function VoxelWorld() {
       <hemisphereLight args={["#b9d5ff", "#444", 0.3]} />
 
       <WorldMesh />
+      <AgentMeshes />
       <GroundGrid />
 
       <OrbitControls
