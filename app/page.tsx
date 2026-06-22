@@ -1,46 +1,53 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useWorldStore } from "@/lib/worldStore";
-import WorldMap from "./components/WorldMap";
-import TileInspector from "./components/TileInspector";
 import WorldControls from "./components/WorldControls";
 import Legend from "./components/Legend";
 
+// VoxelWorld uses Three.js which requires browser APIs — load client-side only
+const VoxelWorld = dynamic(() => import("./components/VoxelWorld"), { ssr: false });
+
 export default function Home() {
-  const { initWorld, tiles } = useWorldStore();
+  const { initWorld, voxels, tick } = useWorldStore();
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (tiles.length === 0) initWorld();
+    if (voxels.size === 0) {
+      initWorld();
+    }
+    setReady(true);
   }, []);
 
   return (
     <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 flex flex-col bg-gray-800 border-r border-gray-700 overflow-y-auto">
+      <aside className="w-60 flex-shrink-0 flex flex-col bg-gray-800 border-r border-gray-700 overflow-y-auto">
         <div className="p-4 border-b border-gray-700">
           <h1 className="text-xl font-bold text-amber-400">AI Civilisation</h1>
-          <p className="text-gray-400 text-xs mt-0.5">World Simulation</p>
+          <p className="text-gray-400 text-xs mt-0.5">3D World Simulation</p>
         </div>
 
         <WorldControls />
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="border-b border-gray-700">
-            <div className="p-3 text-gray-400 text-xs uppercase tracking-wide">Tile Inspector</div>
-            <TileInspector />
-          </div>
-        </div>
-
+        <div className="flex-1" />
         <Legend />
       </aside>
 
-      {/* Map canvas area */}
-      <main className="flex-1 overflow-auto flex items-center justify-center bg-gray-950 p-4">
-        {tiles.length === 0 ? (
-          <div className="text-gray-500">Generating world…</div>
+      {/* 3D canvas */}
+      <main className="flex-1 relative">
+        {ready ? (
+          <VoxelWorld />
         ) : (
-          <WorldMap />
+          <div className="flex items-center justify-center h-full text-gray-500">
+            Generating world…
+          </div>
         )}
+
+        {/* HUD overlay */}
+        <div className="absolute bottom-4 right-4 bg-black/50 rounded px-3 py-1.5 text-xs text-gray-300 pointer-events-none">
+          Tick {tick} · {voxels.size.toLocaleString()} blocks
+        </div>
       </main>
     </div>
   );

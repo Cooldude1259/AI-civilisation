@@ -5,6 +5,15 @@ import { useWorldStore } from "@/lib/worldStore";
 export default function WorldControls() {
   const { initWorld, advanceTick, tick, config } = useWorldStore();
   const [seed, setSeed] = useState(config.seed.toString());
+  const [loading, setLoading] = useState(false);
+
+  function handleGenerate() {
+    setLoading(true);
+    setTimeout(() => {
+      initWorld({ seed: parseInt(seed) || 42 });
+      setLoading(false);
+    }, 10);
+  }
 
   return (
     <div className="p-4 space-y-4 border-b border-gray-700">
@@ -22,10 +31,11 @@ export default function WorldControls() {
           className="bg-gray-700 text-white rounded px-2 py-1 text-sm w-24 border border-gray-600 focus:outline-none focus:border-amber-400"
         />
         <button
-          onClick={() => initWorld({ seed: parseInt(seed) || 42 })}
-          className="flex-1 bg-amber-600 hover:bg-amber-500 text-white rounded px-3 py-1 text-sm font-medium transition-colors"
+          onClick={handleGenerate}
+          disabled={loading}
+          className="flex-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded px-3 py-1 text-sm font-medium transition-colors"
         >
-          Generate World
+          {loading ? "Building…" : "New World"}
         </button>
       </div>
 
@@ -37,8 +47,8 @@ export default function WorldControls() {
       </button>
 
       <div className="text-xs text-gray-500 space-y-0.5">
-        <div>{config.width}×{config.height} tiles</div>
-        <div>Seed: {config.seed}</div>
+        <div>{config.width}×{config.depth} tiles · Seed {config.seed}</div>
+        <div className="text-gray-600">Scroll to zoom · Drag to orbit · Right-drag to pan</div>
       </div>
     </div>
   );
